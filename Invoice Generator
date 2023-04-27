@@ -1,0 +1,90 @@
+import com.itextpdf.text.Document;
+import com.itextpdf.text.DocumentException;
+import com.itextpdf.text.Paragraph;
+import com.itextpdf.text.pdf.PdfWriter;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.util.Scanner;
+
+public class InvoiceGenerator {
+    public static void main(String[] args) {
+        // Create a new scanner object to read input from the user
+        Scanner scanner = new Scanner(System.in);
+
+        // Prompt the user to enter the customer information
+        System.out.print("Enter customer name: ");
+        String customerName = scanner.nextLine();
+        System.out.print("Enter address: ");
+        String address = scanner.nextLine();
+        System.out.print("Enter city: ");
+        String city = scanner.nextLine();
+        System.out.print("Enter state: ");
+        String state = scanner.nextLine();
+        System.out.print("Enter pin code: ");
+        int zipCode = scanner.nextInt();
+        if(zipCode<0){
+            System.out.println("ERROR: pin code cant be negative!!");
+            return;}
+        if(zipCode<100000)
+        {
+            System.out.println("ERROR: pin code cant be less than 6 digits!!");
+            return ;
+        }
+        System.out.println("Enter the number of items you have purchased");
+        int num=scanner.nextInt();
+        double tsubtotal=0,subtotal=0;
+        String productName="";
+        // Create a new document
+        Document document = new Document();
+
+        try {
+            // Create a PDF writer to write the document to a file
+            PdfWriter.getInstance(document, new FileOutputStream("invoice.pdf"));
+
+            // Open the document
+            document.open();
+
+            // Add some content to the document
+            document.add(new Paragraph("Invoice"));
+            document.add(new Paragraph("Customer Name: " + customerName));
+            document.add(new Paragraph("Address: " + address));
+            document.add(new Paragraph("City: " + city));
+            document.add(new Paragraph("State: " + state));
+            document.add(new Paragraph("Zip: " + zipCode));
+            document.add(new Paragraph("Date: " + java.time.LocalDate.now()));
+            document.add(new Paragraph(" "));
+            document.add(new Paragraph("Description                Quantity       Price     Total"));
+            for(int i=0;i<num;i++){
+            System.out.print("Enter product name: ");
+            productName = scanner.next();
+            System.out.print("Enter quantity: ");
+            int quantity = scanner.nextInt();
+            System.out.print("Enter price per item: ");
+            double price = scanner.nextDouble();
+            subtotal = quantity * price;
+            document.add(new Paragraph(productName +"                      "+quantity+"          ₹"+price+"   ₹" + subtotal));
+            document.add(new Paragraph(" "));
+            tsubtotal+=subtotal;
+        }
+            double tax = 0.08 * tsubtotal;
+            double total = tsubtotal + tax;
+            document.add(new Paragraph("Subtotal:     ₹" + subtotal));
+            document.add(new Paragraph("Tax:      ₹" + tax));
+            document.add(new Paragraph("Total:    ₹" + total));
+
+            // Close the document
+            document.close();
+
+            // Print a message indicating that the invoice has been generated successfully
+            System.out.println("Invoice generated successfully.");
+
+        } catch (DocumentException e) {
+            e.printStackTrace();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } finally {
+            // Close the scanner
+            scanner.close();
+        }
+    }
+}
